@@ -16,6 +16,12 @@ import java.net.UnknownHostException;
  *
  * @author joshu
  */
+
+/**
+ * TCP Client - connects to Event Board server
+ * Handles user input and displays server responses
+ */
+
 public class Client {
     private static InetAddress host;
     private static final int PORT = 8080;
