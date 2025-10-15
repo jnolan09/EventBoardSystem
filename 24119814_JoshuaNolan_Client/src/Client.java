@@ -54,7 +54,7 @@ public class Client {
             
             //Communication loop
             while (true) {
-                System.out.println("Enter message (or STOP to quit: ");
+                System.out.println("Enter message (or STOP to quit): ");
                 message = userEntry.readLine();
                 
                 //Send message to server

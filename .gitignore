@@ -24,3 +24,7 @@ hs_err_pid*
 replay_pid*
 /24119814_JoshuaNolan_Server/nbproject/private/
 /24119814_JoshuaNolan_Client/nbproject/private/
+/24119814_JoshuaNolan_Server/build/
+/24119814_JoshuaNolan_Server/dist/
+/24119814_JoshuaNolan_Client/dist/
+/24119814_JoshuaNolan_Client/build/

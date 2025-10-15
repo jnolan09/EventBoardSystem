@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 
 /*
@@ -18,6 +19,8 @@ import java.net.Socket;
  */
 public class Server {
     private static final int PORT = 8080;
+    //ArrayList to store all events
+    private static ArrayList<Event> events = new ArrayList<>();
 
     /**
      * @param args the command line arguments
