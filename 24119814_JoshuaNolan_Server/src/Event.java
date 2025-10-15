@@ -35,12 +35,13 @@ public class Event {
         return description;
     }
     
-    // toString for display
+    //toString for display
     @Override
     public String toString() {
-        return "Event{" + "date=" + date + ", time=" + time + ", description=" + description + '}';
+        return time + ", " + description;
     }
-
+    
+    //hashCode for storing events in collectionss
     @Override
     public int hashCode() {
         int hash = 7;
@@ -50,6 +51,7 @@ public class Event {
         return hash;
     }
 
+    //equals method to compare events
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
