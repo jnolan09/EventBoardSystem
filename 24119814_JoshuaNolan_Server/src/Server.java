@@ -55,10 +55,31 @@ public class Server {
                     break;
                 }
                 
-                //Echo the message back
-                String response = "Server echo: " + message;
+                //Parse the message: action, date, time and description
+                String[] parts = message.split(";");
+                
+                //Trim whitespace from each part
+                for (int i = 0; i < parts.length; i++) {
+                    parts[i] = parts[i].trim();
+                }
+                
+                //Extract action
+                String action = parts[0].toLowerCase();
+                String response;
+                
+                //Handle different actions
+                if (action.equals("add")) {
+                    response = "ADD action recieved";
+                } else if (action.equals("remove")) {
+                    response = "REMOVE action recieved";
+                } else if (action.equals("list")) {
+                    response = "LIST action recieved";
+                } else {
+                    response = "Error: Unknown action";
+                }
                 out.println(response);
                 System.out.println("Sent to client: " + response);
+            
             }
             
             //Close connection
