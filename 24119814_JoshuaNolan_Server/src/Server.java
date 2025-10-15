@@ -30,10 +30,10 @@ public class Server {
         try {
             //Create ServerSocket
             servSock = new ServerSocket(PORT);
-            System.out.println("Server is running and waitng for client\n");
+            System.out.println("Server is running and waiting for client\n");
             
             //Accept Connection
-            Socket link  servSock.accept();
+            Socket link = servSock.accept();
             System.out.println("Client Connected: " + link.getInetAddress());
             
             //Setup input and output streams
@@ -46,9 +46,9 @@ public class Server {
                 System.out.println("Message recieved from client: " + message);
                 
                 //Check for stop command
-                if (message.trim().equalsIgnoreCase("Stop")) {
+                if (message.trim().equalsIgnoreCase("STOP")) {
                     System.out.println("Client requested termination");
-                    out.println("Terminate");
+                    out.println("TERMINATE");
                     break;
                 }
                 
@@ -64,7 +64,7 @@ public class Server {
             servSock.close();
             
         } catch (IOException e) {
-            System.out.println("Eror: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
