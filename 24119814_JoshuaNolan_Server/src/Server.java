@@ -69,7 +69,17 @@ public class Server {
                 
                 //Handle different actions
                 if (action.equals("add")) {
-                    response = "ADD action recieved";
+                    //Extract date, time, description from parts
+                    String date = parts[1];
+                    String time = parts[2];
+                    String description = parts[3];
+                    
+                    //Create new event and add to list
+                    Event newEvent = new Event(date, time, description);
+                    events.add(newEvent);
+                    
+                    //Build response with all events on that date
+                    response = getEventsForDate(date);
                 } else if (action.equals("remove")) {
                     response = "REMOVE action recieved";
                 } else if (action.equals("list")) {
@@ -102,4 +112,20 @@ public class Server {
         
     }
     
+    //Helper method to get all events for a specific date
+    private static String getEventsForDate(String date) {
+        StringBuilder result = new StringBuilder(date);
+        boolean foundAny = false;
+        
+        for ( Event event : events) {
+            if (event.getDate().equals(date)) {
+                result.append("; ").append(event.toString());
+                foundAny = true;
+            }
+        }
+        if (!foundAny) {
+            return date + "; No events scheduled";
+        }
+        return result.toString();
+    }
 }
