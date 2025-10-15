@@ -81,9 +81,22 @@ public class Server {
                     //Build response with all events on that date
                     response = getEventsForDate(date);
                 } else if (action.equals("remove")) {
-                    response = "REMOVE action recieved";
+                    //Extract date, time, description
+                    String date = parts[1];
+                    String time = parts[2];
+                    String description = parts[3];
+                    
+                    //Find and remove event
+                    Event toRemove = new Event(date, time, description);
+                    events.remove(toRemove);
+                    
+                    //Response with remaining events on that date
+                    response = getEventsForDate(date);
                 } else if (action.equals("list")) {
-                    response = "LIST action recieved";
+                    //Extract date
+                    String date = parts[1];
+                    //Get all events for that date
+                    response = getEventsForDate(date);
                 } else {
                     response = "Error: Unknown action";
                 }
