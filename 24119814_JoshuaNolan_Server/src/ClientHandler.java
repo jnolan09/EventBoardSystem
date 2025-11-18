@@ -67,7 +67,7 @@ public class ClientHandler implements Runnable{
                     
                     Event newEvent = new Event(date, time, desc);
                     events.add(newEvent);
-                    response = "Event added";
+                    response = getEventsForDate(date);
                     
                 } else if (action.equals("remove")) {
                     String date = parts[1];
@@ -76,10 +76,11 @@ public class ClientHandler implements Runnable{
                     
                     Event toRemove = new Event(date, time, desc);
                     events.remove(toRemove);
-                    response = "Event removed";
+                    response = getEventsForDate(date);
                     
                 } else if (action.equals("list")) {
-                    response = "List events";
+                    String date = parts[1];
+                    response = getEventsForDate(dates);
                 } else {
                     response = "Error";
                 }
@@ -99,5 +100,51 @@ public class ClientHandler implements Runnable{
                 System.out.println("Error closing connection for " + clientID);
             }
         }
+    }
+    
+    // Helper method to get all events for a specific date sorted by time
+    private static String getEventsForDate(String date) {
+        ArrayList<Event> dateEvents = new ArrayList<>();
+        
+        for (Event event : events) {
+            if (event.getDate().equals(date)) {
+                dateEvents.add(event);
+            }
+        }
+        
+        if (dateEvents.isEmpty()) {
+            return date + "; No events scheduled";
+        }
+        
+        // Sort events by time
+        dateEvents.sort((e1, e2) -> {
+            int time1 = timeToMinutes(e1.getTime());
+            int time2 = timeToMinutes(e2.getTime());
+            return Integer.compare(time1, time2);
+        });
+        
+        // Build response string
+        StringBuilder result = new StringBuilder(date);
+        for (Event event : dateEvents) {
+            result.append("; ").append(event.toString());
+        }
+        return result.toString();
+    }
+    
+    // Helper method to convert time string to 24 hour format for sorting events
+    private static int timeToMinutes(String time) {
+        time = time.toLowerCase().trim();
+        
+        String[] parts = time.replace(" pm", "").replace( " am", "").split("\\.");
+        int hour = Integer.parseInt(parts[0]);
+        int minutes = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+        
+        // Convert to 24 hour format
+        if (time.contains("pm") && hour != 12) {
+            hour += 12;
+        } else if (time.contains("am") && hour == 12) {
+            hour = 0;
+        }
+        return hour * 60 + minutes;
     }
 }
