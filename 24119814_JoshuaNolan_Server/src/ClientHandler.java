@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * @author joshu
  */
 public class ClientHandler implements Runnable{
-    private final Socket clientSocket;
+    private Socket clientSocket;
     private String clientID;
     private static ArrayList<Event> events; // Event list
     
@@ -31,9 +31,62 @@ public class ClientHandler implements Runnable{
         try {
             // Setup input and output streams
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out = new PrintWriter(clientSocket.getOuputStream(), true);
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             
             System.out.println(clientID + " connected from: " + clientSocket.getInetAddress());
+            
+            // Communication loop
+            String message;
+            while ((message = in.readLine()) != null) {
+                System.out.println("Message from " + clientID + ": " + message);
+                
+                // Check for STOP command
+                if (message.trim().equalsIgnoreCase("STOP")) {
+                    System.out.println(clientID + " requested termination");
+                    out.println("TERMINATE");
+                    break;
+                }
+                
+                // Parse the message 
+                String[] parts = message.split(";");
+                
+                // Trim whitespace
+                for (int i = 0; i < parts.length; i++) {
+                    parts[i] = parts[i].trim();
+                }
+                
+                // Extract action
+                String action = parts[0].toLowerCase();
+                String response;
+                
+                // Handle different actions
+                if (action.equals("add") ) {
+                    String date = parts[1];
+                    String time = parts[2];
+                    String desc = parts[3];
+                    
+                    Event newEvent = new Event(date, time, desc);
+                    events.add(newEvent);
+                    response = "Event added";
+                    
+                } else if (action.equals("remove")) {
+                    String date = parts[1];
+                    String time = parts[2];
+                    String desc = parts[3];
+                    
+                    Event toRemove = new Event(date, time, desc);
+                    events.remove(toRemove);
+                    response = "Event removed";
+                    
+                } else if (action.equals("list")) {
+                    response = "List events";
+                } else {
+                    response = "Error";
+                }
+                
+                out.println(response);
+                System.out.println("Sent to " + clientID + ": " + response);
+            }
         
         } catch (IOException e) {
             System.out.println(clientID + " Error: " + e.getMessage());
