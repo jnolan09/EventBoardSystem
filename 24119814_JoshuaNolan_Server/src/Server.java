@@ -35,80 +35,23 @@ public class Server {
             servSock = new ServerSocket(PORT);
             System.out.println("Server is running and waiting for client\n");
             
-            //Accept Connection
-            Socket link = servSock.accept();
-            System.out.println("Client Connected: " + link.getInetAddress());
+            int clientCount = 0;
             
-            //Setup input and output streams
-            BufferedReader in = new BufferedReader(new InputStreamReader(link.getInputStream()));
-            PrintWriter out = new PrintWriter(link.getOutputStream(), true);
-            
-            //Communication loop to read and respond to multiple messages
-            String message;
-            while ((message = in.readLine()) != null) {
-                System.out.println("Message recieved from client: " + message);
+            // Infinite loop to accept multiple clients
+            while (true) {
+                Socket clientSocket = servSock.accept();
+                clientCount++;
+                String clientID = "Client: " + clientCount;
                 
-                //Check for stop command
-                if (message.trim().equalsIgnoreCase("STOP")) {
-                    System.out.println("Client requested termination");
-                    out.println("TERMINATE");
-                    break;
-                }
+                System.out.println(clientID + " connection recieved, Creating thread");
                 
-                //Parse the message: action, date, time and description
-                String[] parts = message.split(";");
+                // Create and start new thread for this client
+                ClientHandler handler = new ClientHandler(clientSocket, clientID, events);
+                Thread thread = new Thread(handler);
+                thread.start();
                 
-                //Trim whitespace from each part
-                for (int i = 0; i < parts.length; i++) {
-                    parts[i] = parts[i].trim();
-                }
-                
-                //Extract action
-                String action = parts[0].toLowerCase();
-                String response;
-                
-                //Handle different actions
-                if (action.equals("add")) {
-                    //Extract date, time, description from parts
-                    String date = parts[1];
-                    String time = parts[2];
-                    String description = parts[3];
-                    
-                    //Create new event and add to list
-                    Event newEvent = new Event(date, time, description);
-                    events.add(newEvent);
-                    
-                    //Build response with all events on that date
-                    response = getEventsForDate(date);
-                } else if (action.equals("remove")) {
-                    //Extract date, time, description
-                    String date = parts[1];
-                    String time = parts[2];
-                    String description = parts[3];
-                    
-                    //Find and remove event
-                    Event toRemove = new Event(date, time, description);
-                    events.remove(toRemove);
-                    
-                    //Response with remaining events on that date
-                    response = getEventsForDate(date);
-                } else if (action.equals("list")) {
-                    //Extract date
-                    String date = parts[1];
-                    //Get all events for that date
-                    response = getEventsForDate(date);
-                } else {
-                    response = "Error: Unknown action";
-                }
-                out.println(response);
-                System.out.println("Sent to client: " + response);
-            
+                System.out.println(clientID + " thread started.");
             }
-            
-            //Close connection
-            System.out.println("\n Closing connection... ");
-            link.close();
-            servSock.close();
             
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
@@ -123,22 +66,5 @@ public class Server {
             }
         }
         
-    }
-    
-    //Helper method to get all events for a specific date
-    private static String getEventsForDate(String date) {
-        StringBuilder result = new StringBuilder(date);
-        boolean foundAny = false;
-        
-        for ( Event event : events) {
-            if (event.getDate().equals(date)) {
-                result.append("; ").append(event.toString());
-                foundAny = true;
-            }
-        }
-        if (!foundAny) {
-            return date + "; No events scheduled";
-        }
-        return result.toString();
     }
 }
