@@ -66,8 +66,10 @@ public class ClientHandler implements Runnable{
                     String desc = parts[3];
                     
                     Event newEvent = new Event(date, time, desc);
-                    events.add(newEvent);
-                    response = getEventsForDate(date);
+                    synchronized(events) {
+                        events.add(newEvent);
+                        response = getEventsForDate(date);
+                    }
                     
                 } else if (action.equals("remove")) {
                     String date = parts[1];
@@ -75,12 +77,16 @@ public class ClientHandler implements Runnable{
                     String desc = parts[3];
                     
                     Event toRemove = new Event(date, time, desc);
-                    events.remove(toRemove);
-                    response = getEventsForDate(date);
+                    synchronized(events) {
+                        events.remove(toRemove);
+                        response = getEventsForDate(date);
+                    }
                     
                 } else if (action.equals("list")) {
                     String date = parts[1];
-                    response = getEventsForDate(dates);
+                    synchronized(events) {
+                        response = getEventsForDate(date);
+                    }
                 } else {
                     response = "Error";
                 }
