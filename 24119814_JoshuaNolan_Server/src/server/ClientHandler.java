@@ -1,3 +1,4 @@
+package server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -55,9 +56,20 @@ public class ClientHandler implements Runnable{
                     parts[i] = parts[i].trim();
                 }
                 
-                // Extract action
-                String action = parts[0].toLowerCase();
                 String response;
+                
+                try {
+                    // Validate number of fields (must be 4)
+                    if (parts.length != 4) {
+                    throw new InvalidCommandException("Invalid format: expected 4 fields (action; date; time; description)");
+                }
+                    
+                // Extract and validate action
+                String action = parts[0].toLowerCase();
+                
+                if(!action.equals("add") && !action.equals("remove") && !action.equals("list")) {
+                    throw new InvalidCommandException("Unknown action '" + action + "': must be add, remove or list");
+                }
                 
                 // Handle different actions
                 if (action.equals("add") ) {
@@ -82,14 +94,17 @@ public class ClientHandler implements Runnable{
                         response = getEventsForDate(date);
                     }
                     
-                } else if (action.equals("list")) {
+                } else { // List
                     String date = parts[1];
                     synchronized(events) {
                         response = getEventsForDate(date);
                     }
-                } else {
-                    response = "Error";
                 }
+                
+            } catch (InvalidCommandException e) {
+                response = "InvalidCommandException: " + e.getMessage();
+                    System.out.println("Validation error for " + clientID + ": " + e.getMessage());
+            }
                 
                 out.println(response);
                 System.out.println("Sent to " + clientID + ": " + response);
