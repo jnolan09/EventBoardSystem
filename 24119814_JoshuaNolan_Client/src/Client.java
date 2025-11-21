@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 
 /*
@@ -58,6 +60,18 @@ public class Client {
             String message;
             String response;
             
+            
+            // HTTP Import on startup
+            System.out.println("Checking for import URL");
+            System.out.println("Enter import URL (or press ENTER to skip): ");
+            String importURL = userEntry.readLine();
+            if (importURL == null) importURL = "";
+            importURL = importURL.trim();
+            
+            if (!importURL.isEmpty()) {
+                importEvents(importURL, out, in);
+            }
+            
             //Communication loop
             while (true) {
                 System.out.println("Enter message (or STOP to quit): ");
@@ -94,6 +108,58 @@ public class Client {
                 System.out.println("Unable to disconnect");
                 System.exit(1);
             }
+        }
+    }
+    
+    // Method to import events from URL
+    private static void importEvents(String urlString, PrintWriter out, BufferedReader in) {
+        System.out.println("Importing events from: " + urlString);
+        
+        int imported = 0;
+        int skipped = 0;
+        
+        try {
+            URL url = new URL(urlString);
+            URLConnection connection = url.openConnection();
+            BufferedReader urlReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            
+            String line;
+            while ((line = urlReader.readLine()) != null) {
+                line = line.trim();
+                
+                // Skip empty lines
+                if (line.isEmpty()) {
+                    continue;
+                }
+                
+                // Validate format: date; time; description
+                String[] parts = line.split(";");
+                if (parts.length != 3) {
+                    System.out.println("Skipped (invalid format): " + line);
+                    skipped++;
+                    continue;
+                }
+                
+                // Add command
+                String date = parts[0].trim();
+                String time = parts[1].trim();
+                String desc = parts[2].trim();
+                
+                String command = "add; " + date + "; " + time + "; " + desc;
+                
+                // Send to server
+                out.println(command);
+                String response = in.readLine();
+                
+                System.out.println("Imported: " + line);
+                System.out.println("Server: " + response);
+                imported++;
+            }
+            
+            urlReader.close();
+            System.out.println("\nImport complete. Imported: " + imported + "; Skipped: " + skipped);
+        } catch (Exception e) {
+            System.out.println("Error importing from URL: " + e.getMessage());
         }
     }
 }
